@@ -77,9 +77,36 @@ require __DIR__ . '/../layouts/sidebar.php';
                                     <i class="fa-solid fa-barcode"></i> Code
                                 </button>
                             </td>
-                            <td class="py-4 px-4 text-right">
+                            <td class="py-4 px-4 text-right flex items-center justify-end gap-1.5">
+                                <?php 
+                                    $reportShortUrl = base_url('/r/' . $st['student_code']);
+                                ?>
+                                <a href="<?= $reportShortUrl ?>" target="_blank"
+                                   title="Open Parent Report"
+                                   class="px-2.5 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-600 text-purple-300 hover:text-white text-xs font-semibold transition-colors border border-purple-500/20 inline-flex items-center gap-1">
+                                    <i class="fa-solid fa-user-shield"></i> Parent
+                                </a>
+                                <button onclick="copyParentLink('<?= $reportShortUrl ?>')"
+                                        title="Copy Short Parent Link"
+                                        class="px-2.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-600 text-indigo-300 hover:text-white text-xs font-semibold transition-colors border border-indigo-500/20 inline-flex items-center gap-1">
+                                    <i class="fa-solid fa-copy"></i> Copy
+                                </button>
+                                <?php if (!empty($st['parent_phone'])): 
+                                    $waMsg = "📊 *EduClassPro - Student Progress Report*\n\n"
+                                           . "👤 *Student Name:* " . $st['name'] . "\n"
+                                           . "🎓 *Grade:* " . $st['grade_level'] . "\n\n"
+                                           . "👇 *Click link to view attendance & results:*\n"
+                                           . $reportShortUrl;
+                                ?>
+                                    <a href="https://api.whatsapp.com/send?phone=<?= preg_replace('/[^0-9]/', '', $st['parent_phone']) ?>&text=<?= rawurlencode($waMsg) ?>" 
+                                       target="_blank"
+                                       title="Share Report via WhatsApp"
+                                       class="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs font-semibold transition-colors border border-emerald-500/20 inline-flex items-center gap-1">
+                                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                                    </a>
+                                <?php endif; ?>
                                 <button onclick="openEnrollModal(<?= $st['id'] ?>, '<?= htmlspecialchars($st['name']) ?>')"
-                                        class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold transition-colors border border-slate-700">
+                                        class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold transition-colors border border-slate-700">
                                     + Course
                                 </button>
                             </td>
@@ -155,7 +182,7 @@ require __DIR__ . '/../layouts/sidebar.php';
                     <?php foreach ($courses as $c): ?>
                         <label class="flex items-center gap-2 text-xs text-slate-300 hover:text-white cursor-pointer p-1">
                             <input type="checkbox" name="course_ids[]" value="<?= $c['id'] ?>" class="rounded bg-slate-900 border-slate-700 text-brand-500">
-                            <span><?= htmlspecialchars($c['title']) ?> ($<?= $c['monthly_fee'] ?>)</span>
+                            <span><?= htmlspecialchars($c['title']) ?> (Rs. <?= $c['monthly_fee'] ?>)</span>
                         </label>
                     <?php endforeach; ?>
                 </div>
@@ -214,7 +241,7 @@ require __DIR__ . '/../layouts/sidebar.php';
                 <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Select Tuition Class</label>
                 <select name="course_id" required class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
                     <?php foreach ($courses as $c): ?>
-                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['title']) ?> - $<?= $c['monthly_fee'] ?>/mo (<?= htmlspecialchars($c['schedule_day']) ?>)</option>
+                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['title']) ?> - Rs. <?= $c['monthly_fee'] ?>/mo (<?= htmlspecialchars($c['schedule_day']) ?>)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -257,6 +284,51 @@ require __DIR__ . '/../layouts/sidebar.php';
         document.getElementById('enrollStudentId').value = id;
         document.getElementById('enrollStudentName').innerText = name;
         openModal('enrollModal');
+    }
+
+    function copyParentLink(url) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(url).then(() => {
+                showCopyToast(url);
+            }).catch(() => {
+                fallbackCopy(url);
+            });
+        } else {
+            fallbackCopy(url);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopyToast(text);
+        } catch (err) {
+            prompt('Copy Parent Report Link:', text);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function showCopyToast(url) {
+        let toast = document.getElementById('copyToastNotification');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'copyToastNotification';
+            toast.className = 'fixed bottom-6 right-6 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl font-bold text-xs flex items-center gap-2 border border-emerald-400 transition-all duration-300 transform translate-y-0';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = '<i class="fa-solid fa-circle-check text-base"></i> Parent Link Copied!<br><span class="font-mono text-[10px] opacity-90">' + url + '</span>';
+        toast.style.display = 'flex';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
     }
 </script>
 

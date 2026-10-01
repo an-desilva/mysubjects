@@ -60,9 +60,10 @@ class Student {
     }
 
     public function create(array $data): int {
+        $accessToken = md5(uniqid('stu_' . mt_rand(1, 99999) . '_', true));
         $stmt = $this->db->prepare("
-            INSERT INTO students (user_id, student_code, phone, parent_phone, address, grade_level, barcode_path)
-            VALUES (:user_id, :student_code, :phone, :parent_phone, :address, :grade_level, :barcode_path)
+            INSERT INTO students (user_id, student_code, phone, parent_phone, address, grade_level, barcode_path, access_token)
+            VALUES (:user_id, :student_code, :phone, :parent_phone, :address, :grade_level, :barcode_path, :access_token)
         ");
         $stmt->execute([
             'user_id'      => $data['user_id'],
@@ -71,7 +72,8 @@ class Student {
             'parent_phone' => $data['parent_phone'] ?? null,
             'address'      => $data['address'] ?? null,
             'grade_level'  => $data['grade_level'],
-            'barcode_path' => $data['barcode_path'] ?? null
+            'barcode_path' => $data['barcode_path'] ?? null,
+            'access_token' => $accessToken
         ]);
         return (int) $this->db->lastInsertId();
     }

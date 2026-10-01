@@ -14,15 +14,20 @@ if (file_exists($envFile)) {
             $name = trim($name);
             $value = trim($value, " \t\n\r\0\x0B\"'");
             $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
             putenv("{$name}={$value}");
         }
     }
 }
 
 // Global Application Constants
-define('APP_NAME', $_ENV['APP_NAME'] ?? 'Tuition & Class Management System');
-define('APP_ENV', $_ENV['APP_ENV'] ?? 'development');
-define('APP_DEBUG', filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN));
+$appName = getenv('APP_NAME') ?: ($_ENV['APP_NAME'] ?? 'Tuition & Class Management System');
+$appEnv  = getenv('APP_ENV') ?: ($_ENV['APP_ENV'] ?? 'development');
+$appDebug = getenv('APP_DEBUG') ?: ($_ENV['APP_DEBUG'] ?? 'true');
+
+define('APP_NAME', $appName);
+define('APP_ENV', $appEnv);
+define('APP_DEBUG', filter_var($appDebug, FILTER_VALIDATE_BOOLEAN));
 define('BASE_PATH', dirname(__DIR__));
 
 // Dynamic Base URL helper calculation
@@ -35,7 +40,8 @@ if ($publicPath === '/' || $publicPath === '.') {
     $publicPath = '';
 }
 $calculatedAppUrl = $protocol . '://' . $host . $publicPath;
-define('APP_URL', rtrim($_ENV['APP_URL'] ?? $calculatedAppUrl, '/'));
+$envAppUrl = getenv('APP_URL') ?: ($_ENV['APP_URL'] ?? ($_SERVER['APP_URL'] ?? null));
+define('APP_URL', rtrim($envAppUrl ?: $calculatedAppUrl, '/'));
 
 // Secure Session Configuration
 if (session_status() === PHP_SESSION_NONE) {

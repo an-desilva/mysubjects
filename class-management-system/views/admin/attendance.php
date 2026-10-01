@@ -158,6 +158,9 @@ require __DIR__ . '/../layouts/sidebar.php';
     </div>
 </main>
 
+<script>
+    window.SCAN_API_URL = "<?= base_url('/api/attendance/scan') ?>";
+</script>
 <script src="<?= asset('js/scanner.js') ?>"></script>
 
 <?php require __DIR__ . '/../layouts/footer.php'; ?>

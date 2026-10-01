@@ -60,7 +60,7 @@ class AttendanceController {
 
         $student = $this->studentModel->findByStudentCode($code);
         if (!$student) {
-            response_json(['success' => false, 'message' => "Student Code '{$code}' not found in system."], 444);
+            response_json(['success' => false, 'message' => "Student Code '{$code}' not found in system."], 404);
         }
 
         $course = $this->courseModel->findById($courseId);
@@ -81,6 +81,16 @@ class AttendanceController {
         );
 
         if ($result['success']) {
+            // Trigger SMS notification to parent
+            require_once __DIR__ . '/../Services/SmsService.php';
+            SmsService::sendAttendanceNotification(
+                $student,
+                $course['title'],
+                $status,
+                date('h:i A'),
+                $student['access_token'] ?? ''
+            );
+
             response_json([
                 'success'      => true,
                 'message'      => "Attendance marked ({$status}) for {$student['name']}.",
@@ -104,20 +114,40 @@ class AttendanceController {
         }
 
         $studentId = (int) ($_POST['student_id'] ?? 0);
+        $studentCode = sanitize($_POST['student_code'] ?? '');
         $courseId = (int) ($_POST['course_id'] ?? 0);
         $status = sanitize($_POST['status'] ?? 'present');
         $date = sanitize($_POST['date'] ?? date('Y-m-d'));
+
+        if ($studentId <= 0 && !empty($studentCode)) {
+            $studentObj = $this->studentModel->findByStudentCode($studentCode);
+            if ($studentObj) {
+                $studentId = (int) $studentObj['id'];
+            }
+        }
 
         if ($studentId > 0 && $courseId > 0) {
             $user = auth_user();
             $res = $this->attendanceModel->markAttendance($studentId, $courseId, $date, $status, $user['id'], 'MANUAL');
             if ($res['success']) {
-                set_flash('success', 'Manual attendance updated.');
+                $studentObj = $this->studentModel->findById($studentId);
+                $courseObj = $this->courseModel->findById($courseId);
+                if ($studentObj && $courseObj) {
+                    require_once __DIR__ . '/../Services/SmsService.php';
+                    SmsService::sendAttendanceNotification(
+                        $studentObj,
+                        $courseObj['title'],
+                        $status,
+                        date('h:i A'),
+                        $studentObj['access_token'] ?? ''
+                    );
+                }
+                set_flash('success', "Manual attendance marked ({$status}) for {$studentObj['name']}.");
             } else {
                 set_flash('error', $res['message']);
             }
         } else {
-            set_flash('error', 'Invalid student or course selected.');
+            set_flash('error', 'Student not found. Please verify the Student Code (e.g. STU-2026-001).');
         }
 
         redirect('/admin/attendance');

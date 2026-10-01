@@ -20,17 +20,17 @@ require __DIR__ . '/../layouts/sidebar.php';
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div class="glass-panel p-5 rounded-2xl border border-slate-800">
             <p class="text-xs font-bold uppercase text-slate-400">Total Revenue (<?= htmlspecialchars($stats['month']) ?>)</p>
-            <h3 class="text-3xl font-extrabold text-emerald-400 font-heading mt-1">$<?= number_format($stats['total_collected'], 2) ?></h3>
+            <h3 class="text-3xl font-extrabold text-emerald-400 font-heading mt-1"><?= format_currency($stats['total_collected']) ?></h3>
             <p class="text-xs text-slate-500 mt-1"><?= $stats['total_payments'] ?> payment transaction(s)</p>
         </div>
         <div class="glass-panel p-5 rounded-2xl border border-slate-800">
             <p class="text-xs font-bold uppercase text-slate-400">Expected Class Revenue</p>
-            <h3 class="text-3xl font-extrabold text-indigo-400 font-heading mt-1">$<?= number_format($stats['expected_total'], 2) ?></h3>
+            <h3 class="text-3xl font-extrabold text-indigo-400 font-heading mt-1"><?= format_currency($stats['expected_total']) ?></h3>
             <p class="text-xs text-slate-500 mt-1">Based on active course enrollments</p>
         </div>
         <div class="glass-panel p-5 rounded-2xl border border-slate-800">
             <p class="text-xs font-bold uppercase text-slate-400">Estimated Pending Dues</p>
-            <h3 class="text-3xl font-extrabold text-amber-400 font-heading mt-1">$<?= number_format($stats['pending_dues'], 2) ?></h3>
+            <h3 class="text-3xl font-extrabold text-amber-400 font-heading mt-1"><?= format_currency($stats['pending_dues']) ?></h3>
             <p class="text-xs text-slate-500 mt-1">Uncollected monthly fees</p>
         </div>
     </div>
@@ -67,7 +67,7 @@ require __DIR__ . '/../layouts/sidebar.php';
                             </td>
                             <td class="py-4 px-4 text-xs font-semibold text-slate-300"><?= htmlspecialchars($p['course_title']) ?></td>
                             <td class="py-4 px-4 font-mono text-xs text-slate-300"><?= htmlspecialchars($p['month']) ?></td>
-                            <td class="py-4 px-4 font-bold text-emerald-400">$<?= number_format($p['amount'], 2) ?></td>
+                            <td class="py-4 px-4 font-bold text-emerald-400"><?= format_currency($p['amount']) ?></td>
                             <td class="py-4 px-4 text-xs uppercase font-bold text-slate-400"><?= htmlspecialchars($p['payment_method']) ?></td>
                             <td class="py-4 px-4 text-xs font-mono text-slate-400"><?= htmlspecialchars($p['payment_date']) ?></td>
                             <td class="py-4 px-4 text-right">
@@ -114,7 +114,7 @@ require __DIR__ . '/../layouts/sidebar.php';
                 <select name="course_id" required class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
                     <option value="">-- Choose Course --</option>
                     <?php foreach ($courses as $c): ?>
-                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['title']) ?> ($<?= $c['monthly_fee'] ?>/mo)</option>
+                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['title']) ?> (Rs. <?= $c['monthly_fee'] ?>/mo)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -126,8 +126,8 @@ require __DIR__ . '/../layouts/sidebar.php';
                            class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Amount ($) *</label>
-                    <input type="number" step="0.01" name="amount" placeholder="45.00" required
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Amount (Rs.) *</label>
+                    <input type="number" step="0.01" name="amount" placeholder="4500.00" required
                            class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
                 </div>
             </div>

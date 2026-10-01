@@ -59,7 +59,7 @@
 
             <div class="flex justify-between items-center py-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 mt-4">
                 <span class="text-base font-bold text-slate-300">Total Amount Paid:</span>
-                <span class="text-2xl font-extrabold text-emerald-400 font-mono">$<?= number_format($receipt['amount'], 2) ?></span>
+                <span class="text-2xl font-extrabold text-emerald-400 font-mono"><?= format_currency($receipt['amount']) ?></span>
             </div>
         </div>
 

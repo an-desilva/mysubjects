@@ -52,7 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
             barcodeInput.classList.add('opacity-50');
 
             try {
-                const response = await fetch('/api/attendance/scan', {
+                const apiUrl = window.SCAN_API_URL || 'api/attendance/scan';
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -23,8 +23,9 @@ spl_autoload_register(function ($class) {
     }
 });
 
-// Extract requested URI path
+// Extract requested URI path & method
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uriPath = parse_url($requestUri, PHP_URL_PATH);
 
 // Strip base path prefix if app is served from subfolder (e.g. /myubject/class-management-system/public)
@@ -44,7 +45,17 @@ if ($path === '/' || $path === '/index.php') {
     $path = is_logged_in() ? '/' : '/login';
 }
 
-$requestMethod = $_SERVER['REQUEST_METHOD'];
+// Parent Portal Public Token Routing
+if (str_starts_with($path, '/report/')) {
+    $token = substr($path, strlen('/report/'));
+    (new ParentPortalController())->viewReport($token);
+    exit();
+}
+if (str_starts_with($path, '/r/')) {
+    $token = substr($path, strlen('/r/'));
+    (new ParentPortalController())->viewReport($token);
+    exit();
+}
 
 // Front Controller Router Table
 switch ($path) {

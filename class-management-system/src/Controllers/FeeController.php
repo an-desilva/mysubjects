@@ -62,6 +62,20 @@ class FeeController {
         ]);
 
         if ($receiptNumber) {
+            // Fetch student and course for SMS notification
+            $student = $this->studentModel->findById($studentId);
+            $course = $this->courseModel->findById($courseId);
+            if ($student && $course) {
+                require_once __DIR__ . '/../Services/SmsService.php';
+                SmsService::sendPaymentNotification(
+                    $student,
+                    $course['title'],
+                    $amount,
+                    $receiptNumber,
+                    $student['access_token'] ?? ''
+                );
+            }
+
             set_flash('success', "Payment recorded! Receipt No: {$receiptNumber}");
             redirect('/fees/receipt?number=' . urlencode($receiptNumber));
         } else {

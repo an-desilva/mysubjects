@@ -52,7 +52,7 @@ require __DIR__ . '/../layouts/sidebar.php';
             </div>
             <div>
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Fees (<?= date('M Y') ?>)</p>
-                <h3 class="text-2xl font-extrabold text-emerald-400 font-heading mt-0.5">$<?= number_format($feeStats['total_collected'], 2) ?></h3>
+                <h3 class="text-2xl font-extrabold text-emerald-400 font-heading mt-0.5"><?= format_currency($feeStats['total_collected']) ?></h3>
             </div>
         </div>
 
@@ -96,7 +96,7 @@ require __DIR__ . '/../layouts/sidebar.php';
                             <tr class="hover:bg-slate-800/30">
                                 <td class="py-3 px-3 font-mono text-xs text-brand-300"><?= htmlspecialchars($p['receipt_number']) ?></td>
                                 <td class="py-3 px-3 font-medium text-slate-200"><?= htmlspecialchars($p['student_name']) ?></td>
-                                <td class="py-3 px-3 font-bold text-emerald-400">$<?= number_format($p['amount'], 2) ?></td>
+                                <td class="py-3 px-3 font-bold text-emerald-400"><?= format_currency($p['amount']) ?></td>
                                 <td class="py-3 px-3 text-right">
                                     <a href="<?= base_url('/fees/receipt?number=' . urlencode($p['receipt_number'])) ?>" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500 hover:text-white transition-colors">
                                         <i class="fa-solid fa-print"></i>
