@@ -1,0 +1,4 @@
+# Deny all direct web access to protected study materials
+# Files are served securely via MaterialController stream endpoint
+Order Allow,Deny
+Deny from all
